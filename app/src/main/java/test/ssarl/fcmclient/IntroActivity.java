@@ -95,7 +95,6 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void onFinish() {
-                    //MyFirebaseMessagingService.trigger = null;
                     Log.e(TAG, "onFinish: ");
                     ActivityCompat.finishAffinity(IntroActivity.this);
                 } // 받은 시간이 다 지났을 시
@@ -118,7 +117,6 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
                     Log.d("넘겨조라", String.valueOf(MyFirebaseMessagingService.trigger));
                     intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.putExtra("시간", MyFirebaseMessagingService.trigger);
-                    mCountDown.cancel();
                     startActivity(intent);
                 } else {
                     intent = new Intent(getApplicationContext(), Main2Activity.class);
