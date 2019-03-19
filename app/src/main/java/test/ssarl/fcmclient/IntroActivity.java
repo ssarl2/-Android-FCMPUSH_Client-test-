@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +25,6 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = firebaseDatabase.getReference();
     public SharedPreferences prefs;
-    private static String validTime;
     public CountDownTimer mCountDown;
     Button btn1;
 
@@ -34,7 +34,6 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_intro);
         btn1 = (Button) findViewById(R.id.button);
         prefs = getSharedPreferences("Pref", MODE_PRIVATE);
-        validTime = MyFirebaseMessagingService.trigger;
 
         // If a notification message is tapped, any data accompanying the notification
         // message is available in the intent extras. In this sample the launcher
@@ -86,8 +85,8 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
 
 
         // STRAT CountDown
-        if (validTime != null)
-            mCountDown = new CountDownTimer(Integer.parseInt(validTime) * 1000, 1000) {// 매 1초씩 시간이 흐름
+        if (MyFirebaseMessagingService.trigger != null)
+            mCountDown = new CountDownTimer(Integer.parseInt(MyFirebaseMessagingService.trigger) * 1000, 1000) {// 매 1초씩 시간이 흐름
                 @Override
                 public void onTick(long millisUntilFinished) {
                     btn1.setText("Time: " + millisUntilFinished / 1000);
@@ -95,10 +94,11 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void onFinish() {
-                    validTime = null;
+                    MyFirebaseMessagingService.trigger = null;
                     Log.e(TAG, "onFinish: ");
+                    ActivityCompat.finishAffinity(IntroActivity.this);
                     //android.os.Process.killProcess(android.os.Process.myPid());
-                } // 60초가 다 지나갔을 시
+                } // 받은 시간이 다 지났을 시
             }.start();
         // END CountDown
 
@@ -112,11 +112,12 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
         Intent intent;
         switch (v.getId()) {
             case R.id.button:
-                if (validTime != null) {//데이터가 있으면
-                    Log.d("넘겨조라", validTime);
+                if (MyFirebaseMessagingService.trigger != null) {//데이터가 있으면
+                    Log.d("넘겨조라", MyFirebaseMessagingService.trigger);
                     intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.putExtra("시간", validTime);
+                    intent.putExtra("시간", MyFirebaseMessagingService.trigger);
                     mCountDown.cancel();
+                    //MyFirebaseMessagingService.trigger=null;
                     startActivity(intent);
                 } else {
                     intent = new Intent(getApplicationContext(), Main2Activity.class);

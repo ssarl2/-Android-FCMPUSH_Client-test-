@@ -84,7 +84,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(android.R.drawable.btn_star)
                         .setContentTitle("성공하자")
-                        .setContentText(messageBody)
+                        .setContentText(messageBody+"초")
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent)
