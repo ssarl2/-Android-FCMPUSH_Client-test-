@@ -85,8 +85,9 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
 
 
         // STRAT CountDown
-        if (MyFirebaseMessagingService.trigger != null)
-            mCountDown = new CountDownTimer(Integer.parseInt(MyFirebaseMessagingService.trigger) * 1000, 1000) {// 매 1초씩 시간이 흐름
+        long now = System.currentTimeMillis();
+        if (MyFirebaseMessagingService.trigger > now) {
+            mCountDown = new CountDownTimer(MyFirebaseMessagingService.trigger - now, 1000) {// 매 1초씩 시간이 흐름
                 @Override
                 public void onTick(long millisUntilFinished) {
                     btn1.setText("Time: " + millisUntilFinished / 1000);
@@ -94,12 +95,12 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
 
                 @Override
                 public void onFinish() {
-                    MyFirebaseMessagingService.trigger = null;
+                    //MyFirebaseMessagingService.trigger = null;
                     Log.e(TAG, "onFinish: ");
                     ActivityCompat.finishAffinity(IntroActivity.this);
-                    //android.os.Process.killProcess(android.os.Process.myPid());
                 } // 받은 시간이 다 지났을 시
             }.start();
+        }
         // END CountDown
 
 
@@ -112,12 +113,12 @@ public class IntroActivity extends AppCompatActivity implements View.OnClickList
         Intent intent;
         switch (v.getId()) {
             case R.id.button:
-                if (MyFirebaseMessagingService.trigger != null) {//데이터가 있으면
-                    Log.d("넘겨조라", MyFirebaseMessagingService.trigger);
+                long now = System.currentTimeMillis();
+                if (MyFirebaseMessagingService.trigger > now) {//데이터가 있으면
+                    Log.d("넘겨조라", String.valueOf(MyFirebaseMessagingService.trigger));
                     intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.putExtra("시간", MyFirebaseMessagingService.trigger);
                     mCountDown.cancel();
-                    //MyFirebaseMessagingService.trigger=null;
                     startActivity(intent);
                 } else {
                     intent = new Intent(getApplicationContext(), Main2Activity.class);

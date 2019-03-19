@@ -17,7 +17,7 @@ import com.google.firebase.messaging.RemoteMessage;
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
-    public static String trigger;
+    public static long trigger;
     public static String tokken;
 
     /**
@@ -32,7 +32,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.i(TAG, "onMessageReceived: "+remoteMessage.getData().get("userCount"));
         Log.i(TAG, "onMessageReceived: "+remoteMessage.getData().get("validTime"));
         //Log.i(TAG, "onMessageReceived: "+remoteMessage.getNotification().getBody());
-        trigger = remoteMessage.getData().get("validTime");
+        long timeOut = (Long.parseLong(remoteMessage.getData().get("validTime")) * 1000);
+        trigger = System.currentTimeMillis() + timeOut;
         tokken = remoteMessage.getData().get("userCount");
 
         Log.d(getClass().getSimpleName(), "data = " + trigger);
@@ -63,7 +64,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
-        sendNotification(trigger);
+        sendNotification(trigger, timeOut);
     }
     // [END receive_message]
 
@@ -72,7 +73,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String messageBody) {
+    private void sendNotification(long messageBody, long timeOut) {
         Intent intent = new Intent(this, IntroActivity.class); // 알림탭 눌렀을 시 데이터를 받아서 이 클래스로 이동
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
@@ -84,11 +85,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(android.R.drawable.btn_star)
                         .setContentTitle("성공하자")
-                        .setContentText(messageBody+"초")
+                        .setContentText(timeOut / 1000+"초")
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent)
-                        .setTimeoutAfter(Integer.parseInt(trigger)*1000);
+                        .setTimeoutAfter(timeOut); // validTime 지난 후 알림제거
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
